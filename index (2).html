@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Household Survey Form</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    background: #f3f4f6;
+    color: #1f2937;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .container { max-width: 960px; margin: 0 auto; }
+
+  header {
+    background: #1e40af;
+    color: #fff;
+    padding: 20px 24px;
+    border-radius: 10px 10px 0 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  header h1 { font-size: 22px; }
+  header .meta { font-size: 13px; opacity: 0.9; }
+
+  .toolbar {
+    background: #fff;
+    padding: 14px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .toolbar .count {
+    margin-left: auto;
+    font-size: 14px;
+    color: #6b7280;
+  }
+  button {
+    padding: 9px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.15s;
+    font-family: inherit;
+  }
+  .btn-primary { background: #1e40af; color: #fff; }
+  .btn-primary:hover { background: #1e3a8a; }
+  .btn-success { background: #059669; color: #fff; }
+  .btn-success:hover { background: #047857; }
+  .btn-secondary { background: #e5e7eb; color: #1f2937; }
+  .btn-secondary:hover { background: #d1d5db; }
+  .btn-danger { background: #dc2626; color: #fff; }
+  .btn-danger:hover { background: #b91c1c; }
+  .btn-sm { padding: 5px 11px; font-size: 12px; }
+
+  #bhawansContainer {
+    background: #fff;
+    padding: 20px 24px 30px;
+    border-radius: 0 0 10px 10px;
+    min-height: 200px;
+  }
+
+  /* Bhawan card */
+  .bhawan-card {
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    background: #fff;
+  }
+  .bhawan-header {
+    background: #eff6ff;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 1px solid #dbeafe;
+    transition: background 0.15s;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .bhawan-header:hover { background: #dbeafe; }
+  .bhawan-header.collapsed { border-bottom-color: transparent; }
+  .bhawan-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+  }
+  .chevron {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .collapsed .chevron { transform: rotate(-90deg); }
+  .bhawan-title h2 {
+    font-size: 17px;
+    color: #1e3a8a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .bhawan-badge {
+    background: #1e40af;
+    color: #fff;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+  .bhawan-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .bhawan-body {
+    padding: 16px 18px;
+    background: #fafafa;
+  }
+  .bhawan-body.hidden { display: none; }
+  .bhawan-edit-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed #d1d5db;
+    flex-wrap: wrap;
+  }
+  .bhawan-edit-row .field { flex: 1; min-width: 200px; }
+
+  /* House card (nested inside bhawan) */
+  .house-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    background: #fff;
+    overflow: hidden;
+  }
+  .house-header {
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .house-header:hover { background: #f9fafb; }
+  .house-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+  .house-title h4 {
+    font-size: 14px;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .house-title .sub {
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .house-body {
+    padding: 14px;
+    border-top: 1px solid #e5e7eb;
+    background: #fcfcfd;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 16px;
+  }
+  .house-body.hidden { display: none; }
+
+  .field { display: flex; flex-direction: column; }
+  .field.full { grid-column: 1 / -1; }
+  label {
+    font-size: 12.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #374151;
+  }
+  input[type="text"], input[type="number"], input[type="tel"], select {
+    padding: 7px 9px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    font-size: 13.5px;
+    font-family: inherit;
+    background: #fff;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: #1e40af;
+    box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.15);
+  }
+  .radio-group, .check-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 3px 0;
+  }
+  .radio-group label, .check-group label {
+    font-weight: normal;
+    font-size: 13.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 0;
+    cursor: pointer;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #6b7280;
+  }
+  .empty-state p { margin-bottom: 14px; font-size: 15px; }
+  .empty-houses {
+    text-align: center;
+    padding: 18px;
+    color: #9ca3af;
+    font-size: 13px;
+    font-style: italic;
+  }
+
+  #fileInput { display: none; }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #1f2937;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.25s;
+    pointer-events: none;
+    z-index: 1000;
+    max-width: 320px;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+  .toast.error { background: #dc2626; }
+
+  @media (max-width: 640px) {
+    body { padding: 10px; }
+    .house-body { grid-template-columns: 1fr; }
+    header { padding: 16px; }
+    header h1 { font-size: 18px; }
+    .toolbar { padding: 12px 14px; }
+    #bhawansContainer { padding: 14px; }
+    button { padding: 8px 12px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div>
+      <h1>Household Survey Form</h1>
+      <div class="meta">Bhawan-wise household data collection</div>
+    </div>
+    <div class="meta" id="dateStamp"></div>
+  </header>
+
+  <div class="toolbar">
+    <button class="btn-primary" onclick="addBhawan()">+ Add Bhawan</button>
+    <button class="btn-success" onclick="exportJSON()">⬇ Export JSON</button>
+    <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">⬆ Import JSON</button>
+    <input type="file" id="fileInput" accept=".json,application/json" onchange="importJSON(event)">
+    <span class="count" id="countLabel">0 bhawans</span>
+  </div>
+
+  <div id="bhawansContainer">
+    <div class="empty-state" id="emptyState">
+      <p>No Bhawans added yet.</p>
+      <button class="btn-primary" onclick="addBhawan()">Add Your First Bhawan</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let bhawanIdCounter = 0;
+  let houseIdCounter = 0;
+
+  document.getElementById('dateStamp').textContent =
+    new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast show' + (isError ? ' error' : '');
+    setTimeout(() => t.className = 'toast', 2500);
+  }
+
+  const chevronSVG = '<svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 6 5-6H5z"/></svg>';
+
+  function updateCount() {
+    const n = document.querySelectorAll('.bhawan-card').length;
+    document.getElementById('countLabel').textContent = n + ' bhawan' + (n === 1 ? '' : 's');
+    document.getElementById('emptyState').style.display = n === 0 ? 'block' : 'none';
+  }
+
+  function updateBhawanBadge(bhawanEl) {
+    const count = bhawanEl.querySelectorAll('.house-card').length;
+    const badge = bhawanEl.querySelector('.bhawan-badge');
+    badge.textContent = count + ' house' + (count === 1 ? '' : 's');
+    const empty = bhawanEl.querySelector('.empty-houses');
+    if (empty) empty.style.display = count === 0 ? 'block' : 'none';
+  }
+
+  function updateBhawanTitle(bhawanEl) {
+    const num = bhawanEl.querySelector('.bhawan-num-input').value.trim();
+    const idx = Array.from(document.querySelectorAll('.bhawan-card')).indexOf(bhawanEl) + 1;
+    bhawanEl.querySelector('.bhawan-title h2').textContent =
+      'Bhawan #' + idx + (num ? '  ·  ' + num : '');
+  }
+
+  function updateHouseTitle(houseEl) {
+    const houseNum = houseEl.querySelector('input[name="houseNumber"]').value.trim();
+    const head = houseEl.querySelector('input[name="headOfFamily"]').value.trim();
+    const bhawanEl = houseEl.closest('.bhawan-card');
+    const idx = Array.from(bhawanEl.querySelectorAll('.house-card')).indexOf(houseEl) + 1;
+    const titleEl = houseEl.querySelector('.house-title h4');
+    const subEl = houseEl.querySelector('.house-title .sub');
+    titleEl.textContent = 'House ' + idx + (houseNum ? '  ·  ' + houseNum : '');
+    subEl.textContent = head ? '— ' + head : '';
+  }
+
+  function renumberAll() {
+    document.querySelectorAll('.bhawan-card').forEach(b => {
+      updateBhawanTitle(b);
+      b.querySelectorAll('.house-card').forEach(h => updateHouseTitle(h));
+    });
+  }
+
+  function toggleCollapse(headerEl, bodyEl) {
+    const isCollapsed = bodyEl.classList.toggle('hidden');
+    headerEl.classList.toggle('collapsed', isCollapsed);
+  }
+
+  function addBhawan(data) {
+    bhawanIdCounter++;
+    const id = bhawanIdCounter;
+    const d = data || {};
+    const card = document.createElement('div');
+    card.className = 'bhawan-card';
+    card.dataset.bhawanId = id;
+    card.innerHTML = `
+      <div class="bhawan-header" onclick="onBhawanHeaderClick(event, this)">
+        <div class="bhawan-title">
+          ${chevronSVG}
+          <h2>Bhawan</h2>
+          <span class="bhawan-badge">0 houses</span>
+        </div>
+        <div class="bhawan-actions" onclick="event.stopPropagation()">
+          <button class="btn-primary btn-sm" onclick="addHouseToBhawan(${id})">+ Add House</button>
+          <button class="btn-danger btn-sm" onclick="removeBhawan(${id})">Delete Bhawan</button>
+        </div>
+      </div>
+      <div class="bhawan-body">
+        <div class="bhawan-edit-row">
+          <div class="field">
+            <label>Bhawan Number / Identifier</label>
+            <input type="text" class="bhawan-num-input" value="${escapeAttr(d.bhawanNumber || '')}" placeholder="e.g. B-12 / Plot 45 / Lane 3">
+          </div>
+        </div>
+        <div class="houses-list"></div>
+        <div class="empty-houses">No houses added yet. Click "+ Add House" above.</div>
+      </div>
+    `;
+    document.getElementById('bhawansContainer').appendChild(card);
+
+    const numInput = card.querySelector('.bhawan-num-input');
+    numInput.addEventListener('input', () => updateBhawanTitle(card));
+
+    if (d.houses && Array.isArray(d.houses)) {
+      d.houses.forEach(h => addHouseToBhawan(id, h, true));
+    }
+
+    updateBhawanTitle(card);
+    updateBhawanBadge(card);
+    updateCount();
+    if (!data) {
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      numInput.focus();
+    }
+    return card;
+  }
+
+  function onBhawanHeaderClick(event, headerEl) {
+    if (event.target.closest('button') || event.target.closest('input')) return;
+    const body = headerEl.nextElementSibling;
+    toggleCollapse(headerEl, body);
+  }
+
+  function removeBhawan(bhawanId) {
+    const card = document.querySelector(`.bhawan-card[data-bhawan-id="${bhawanId}"]`);
+    if (!card) return;
+    const houseCount = card.querySelectorAll('.house-card').length;
+    const msg = houseCount > 0
+      ? `Delete this Bhawan and all ${houseCount} house(s) inside it?`
+      : 'Delete this Bhawan?';
+    if (!confirm(msg)) return;
+    card.remove();
+    renumberAll();
+    updateCount();
+  }
+
+  function addHouseToBhawan(bhawanId, data, skipUpdates) {
+    const bhawanEl = document.querySelector(`.bhawan-card[data-bhawan-id="${bhawanId}"]`);
+    if (!bhawanEl) return;
+    houseIdCounter++;
+    const hid = houseIdCounter;
+    const d = data || {};
+    const card = document.createElement('div');
+    card.className = 'house-card';
+    card.dataset.houseId = hid;
+    card.innerHTML = `
+      <div class="house-header" onclick="onHouseHeaderClick(event, this)">
+        <div class="house-title">
+          ${chevronSVG}
+          <h4>House</h4>
+          <span class="sub"></span>
+        </div>
+        <div class="bhawan-actions" onclick="event.stopPropagation()">
+          <button class="btn-danger btn-sm" onclick="removeHouse(${hid})">Delete</button>
+        </div>
+      </div>
+      <div class="house-body">
+        <div class="field">
+          <label>House Number</label>
+          <input type="text" name="houseNumber" value="${escapeAttr(d.houseNumber || '')}" placeholder="e.g. 12-A">
+        </div>
+        <div class="field">
+          <label>Head of Family</label>
+          <input type="text" name="headOfFamily" value="${escapeAttr(d.headOfFamily || '')}" placeholder="Full name">
+        </div>
+        <div class="field">
+          <label>Mobile Number</label>
+          <input type="tel" name="mobile" value="${escapeAttr(d.mobile || '')}" placeholder="10-digit mobile" maxlength="10">
+        </div>
+        <div class="field">
+          <label>Caste Category</label>
+          <select name="caste">
+            <option value="">-- Select --</option>
+            ${['GEN','OBC','SC','ST'].map(c =>
+              `<option value="${c}" ${d.caste===c?'selected':''}>${c}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Ownership Type</label>
+          <div class="radio-group">
+            ${['Own','Rented'].map(v =>
+              `<label><input type="radio" name="ownership_${hid}" value="${v}" ${d.ownership===v?'checked':''}> ${v}</label>`
+            ).join('')}
+          </div>
+        </div>
+        <div class="field">
+          <label>House Type</label>
+          <div class="radio-group">
+            ${[['House','House'],['Shop','Shop'],['Both','Shop + Home']].map(v =>
+              `<label><input type="radio" name="houseType_${hid}" value="${v[0]}" ${d.houseType===v[0]?'checked':''}> ${v[1]}</label>`
+            ).join('')}
+          </div>
+        </div>
+        <div class="field">
+          <label>Members in Family</label>
+          <input type="number" name="members" value="${escapeAttr(d.members || '')}" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Number of Couples</label>
+          <input type="number" name="couples" value="${escapeAttr(d.couples || '')}" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Number of Rooms</label>
+          <input type="number" name="rooms" value="${escapeAttr(d.rooms || '')}" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <label>Gas Connection</label>
+          <div class="radio-group">
+            ${['LPG','PNG','None'].map(v =>
+              `<label><input type="radio" name="gas_${hid}" value="${v}" ${d.gas===v?'checked':''}> ${v}</label>`
+            ).join('')}
+          </div>
+        </div>
+        <div class="field">
+          <label>Water Connection</label>
+          <div class="radio-group">
+            ${['Outer','Boring'].map(v =>
+              `<label><input type="radio" name="water_${hid}" value="${v}" ${d.water===v?'checked':''}> ${v}</label>`
+            ).join('')}
+          </div>
+        </div>
+        <div class="field full">
+          <label>Vehicles (select all that apply)</label>
+          <div class="check-group">
+            ${['Motorcycle','Scooty','Car','None'].map(v => {
+              const checked = (d.vehicles || []).includes(v) ? 'checked' : '';
+              return `<label><input type="checkbox" name="vehicle_${hid}" value="${v}" ${checked}> ${v}</label>`;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    // Collapse house body by default if loading from data
+    if (data && skipUpdates) {
+      card.querySelector('.house-body').classList.add('hidden');
+      card.querySelector('.house-header').classList.add('collapsed');
+    }
+
+    bhawanEl.querySelector('.houses-list').appendChild(card);
+
+    // Wire up live title updates
+    const houseNumInput = card.querySelector('input[name="houseNumber"]');
+    const headInput = card.querySelector('input[name="headOfFamily"]');
+    houseNumInput.addEventListener('input', () => updateHouseTitle(card));
+    headInput.addEventListener('input', () => updateHouseTitle(card));
+
+    updateHouseTitle(card);
+    updateBhawanBadge(bhawanEl);
+
+    if (!data) {
+      // Make sure bhawan body is open
+      const body = bhawanEl.querySelector('.bhawan-body');
+      const header = bhawanEl.querySelector('.bhawan-header');
+      body.classList.remove('hidden');
+      header.classList.remove('collapsed');
+      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return card;
+  }
+
+  function onHouseHeaderClick(event, headerEl) {
+    if (event.target.closest('button')) return;
+    const body = headerEl.nextElementSibling;
+    toggleCollapse(headerEl, body);
+  }
+
+  function removeHouse(houseId) {
+    const card = document.querySelector(`.house-card[data-house-id="${houseId}"]`);
+    if (!card) return;
+    if (!confirm('Delete this house entry?')) return;
+    const bhawanEl = card.closest('.bhawan-card');
+    card.remove();
+    renumberAll();
+    updateBhawanBadge(bhawanEl);
+  }
+
+  function escapeAttr(s) {
+    return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function collectData() {
+    const bhawans = [];
+    document.querySelectorAll('.bhawan-card').forEach(bcard => {
+      const bhawanNumber = bcard.querySelector('.bhawan-num-input').value.trim();
+      const houses = [];
+      bcard.querySelectorAll('.house-card').forEach(card => {
+        const hid = card.dataset.houseId;
+        const get = (sel) => {
+          const el = card.querySelector(sel);
+          return el ? el.value.trim() : '';
+        };
+        const getRadio = (name) => {
+          const el = card.querySelector(`input[name="${name}_${hid}"]:checked`);
+          return el ? el.value : '';
+        };
+        const getChecks = (name) => {
+          return Array.from(card.querySelectorAll(`input[name="${name}_${hid}"]:checked`))
+            .map(el => el.value);
+        };
+        houses.push({
+          houseNumber: get('input[name="houseNumber"]'),
+          headOfFamily: get('input[name="headOfFamily"]'),
+          mobile: get('input[name="mobile"]'),
+          caste: get('select[name="caste"]'),
+          ownership: getRadio('ownership'),
+          houseType: getRadio('houseType'),
+          members: get('input[name="members"]'),
+          couples: get('input[name="couples"]'),
+          rooms: get('input[name="rooms"]'),
+          gas: getRadio('gas'),
+          water: getRadio('water'),
+          vehicles: getChecks('vehicle')
+        });
+      });
+      bhawans.push({ bhawanNumber, houses });
+    });
+    return bhawans;
+  }
+
+  function exportJSON() {
+    const data = collectData();
+    if (data.length === 0) {
+      showToast('No data to export', true);
+      return;
+    }
+    const totalHouses = data.reduce((s, b) => s + b.houses.length, 0);
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      totalBhawans: data.length,
+      totalHouses: totalHouses,
+      bhawans: data
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    a.href = url;
+    a.download = `household_survey_${ts}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${data.length} bhawan(s), ${totalHouses} house(s)`);
+  }
+
+  function importJSON(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parsed = JSON.parse(e.target.result);
+        let bhawanList;
+
+        // New format
+        if (parsed.bhawans && Array.isArray(parsed.bhawans)) {
+          bhawanList = parsed.bhawans;
+        }
+        // Old flat-houses format — wrap into a single bhawan
+        else if (parsed.houses && Array.isArray(parsed.houses)) {
+          bhawanList = [{ bhawanNumber: '', houses: parsed.houses }];
+        }
+        // Bare array
+        else if (Array.isArray(parsed)) {
+          // Could be array of bhawans or array of houses
+          if (parsed.length > 0 && parsed[0].houses) {
+            bhawanList = parsed;
+          } else {
+            bhawanList = [{ bhawanNumber: '', houses: parsed }];
+          }
+        } else {
+          throw new Error('Invalid format');
+        }
+
+        if (document.querySelectorAll('.bhawan-card').length > 0) {
+          if (!confirm('This will replace the current form data. Continue?')) {
+            event.target.value = '';
+            return;
+          }
+        }
+        document.querySelectorAll('.bhawan-card').forEach(c => c.remove());
+        bhawanIdCounter = 0;
+        houseIdCounter = 0;
+
+        bhawanList.forEach(b => addBhawan(b));
+
+        const totalHouses = bhawanList.reduce((s, b) => s + (b.houses ? b.houses.length : 0), 0);
+        showToast(`Imported ${bhawanList.length} bhawan(s), ${totalHouses} house(s)`);
+      } catch (err) {
+        showToast('Failed to import: invalid JSON', true);
+      }
+      event.target.value = '';
+    };
+    reader.readAsText(file);
+  }
+</script>
+</body>
+</html>
