@@ -232,7 +232,7 @@
     margin-bottom: 4px;
     color: #374151;
   }
-  input[type="text"], input[type="number"], input[type="tel"], select {
+  input[type="text"], input[type="number"], input[type="tel"], select, textarea {
     padding: 7px 9px;
     border: 1px solid #d1d5db;
     border-radius: 5px;
@@ -240,10 +240,26 @@
     font-family: inherit;
     background: #fff;
   }
-  input:focus, select:focus {
+  textarea {
+    min-height: 70px;
+    resize: vertical;
+    line-height: 1.4;
+  }
+  input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: #1e40af;
     box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.15);
+  }
+  .section-divider {
+    grid-column: 1 / -1;
+    border-top: 1px dashed #e5e7eb;
+    margin: 4px 0 0;
+    padding-top: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
   .radio-group, .check-group {
     display: flex;
@@ -709,6 +725,32 @@
             }).join('')}
           </div>
         </div>
+
+        <div class="section-divider">Appliances & Connectivity</div>
+        <div class="field full">
+          <label>Devices in Household (select all that apply)</label>
+          <div class="check-group">
+            ${['Television','Laptop','Internet'].map(v => {
+              const checked = (d.appliances || []).includes(v) ? 'checked' : '';
+              return `<label><input type="checkbox" name="appliance_${hid}" value="${v}" ${checked}> ${v}</label>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="field full">
+          <label>Phones in Household (select all that apply)</label>
+          <div class="check-group">
+            ${['Telephone','Mobile','Smartphone'].map(v => {
+              const checked = (d.phones || []).includes(v) ? 'checked' : '';
+              return `<label><input type="checkbox" name="phone_${hid}" value="${v}" ${checked}> ${v}</label>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="section-divider">Additional Notes</div>
+        <div class="field full">
+          <label>Notes / Remarks</label>
+          <textarea name="notes" placeholder="Any additional information, observations, or remarks about this household...">${escapeAttr(d.notes || '').replace(/&quot;/g, '"')}</textarea>
+        </div>
       </div>
     `;
 
@@ -787,7 +829,10 @@
           rooms: get('input[name="rooms"]'),
           gas: getRadio('gas'),
           water: getRadio('water'),
-          vehicles: getChecks('vehicle')
+          vehicles: getChecks('vehicle'),
+          appliances: getChecks('appliance'),
+          phones: getChecks('phone'),
+          notes: get('textarea[name="notes"]')
         });
       });
       bhawans.push({ bhawanNumber, houses });
