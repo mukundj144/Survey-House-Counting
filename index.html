@@ -10,7 +10,7 @@
     font-family: 'Segoe UI', Tahoma, sans-serif;
     background: #f3f4f6;
     color: #1f2937;
-    padding: 20px;
+    padding: 20px 20px 100px;
     line-height: 1.5;
   }
   .container { max-width: 960px; margin: 0 auto; }
@@ -44,9 +44,28 @@
   }
   .toolbar .count {
     margin-left: auto;
-    font-size: 14px;
+    font-size: 13px;
     color: #6b7280;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
+  .save-indicator {
+    font-size: 12px;
+    color: #059669;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .save-indicator.show { opacity: 1; }
+  .save-indicator .dot {
+    width: 7px; height: 7px;
+    background: #059669;
+    border-radius: 50%;
+  }
+
   button {
     padding: 9px 16px;
     border: none;
@@ -56,6 +75,9 @@
     font-weight: 500;
     transition: background 0.15s;
     font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
   .btn-primary { background: #1e40af; color: #fff; }
   .btn-primary:hover { background: #1e3a8a; }
@@ -63,9 +85,16 @@
   .btn-success:hover { background: #047857; }
   .btn-secondary { background: #e5e7eb; color: #1f2937; }
   .btn-secondary:hover { background: #d1d5db; }
-  .btn-danger { background: #dc2626; color: #fff; }
-  .btn-danger:hover { background: #b91c1c; }
-  .btn-sm { padding: 5px 11px; font-size: 12px; }
+  .btn-danger { background: #fee2e2; color: #dc2626; }
+  .btn-danger:hover { background: #fecaca; }
+  .btn-sm { padding: 5px 10px; font-size: 12.5px; }
+  .btn-icon {
+    width: 32px; height: 32px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 6px;
+  }
+  button svg { flex-shrink: 0; }
 
   #bhawansContainer {
     background: #fff;
@@ -93,7 +122,7 @@
     border-bottom: 1px solid #dbeafe;
     transition: background 0.15s;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .bhawan-header:hover { background: #dbeafe; }
   .bhawan-header.collapsed { border-bottom-color: transparent; }
@@ -125,8 +154,9 @@
     padding: 2px 8px;
     border-radius: 10px;
     font-weight: 600;
+    flex-shrink: 0;
   }
-  .bhawan-actions { display: flex; gap: 6px; flex-shrink: 0; }
+  .card-actions { display: flex; gap: 6px; flex-shrink: 0; }
   .bhawan-body {
     padding: 16px 18px;
     background: #fafafa;
@@ -143,7 +173,7 @@
   }
   .bhawan-edit-row .field { flex: 1; min-width: 200px; }
 
-  /* House card (nested inside bhawan) */
+  /* House card */
   .house-card {
     border: 1px solid #e5e7eb;
     border-radius: 6px;
@@ -160,7 +190,7 @@
     user-select: none;
     transition: background 0.15s;
     gap: 10px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
   }
   .house-header:hover { background: #f9fafb; }
   .house-title {
@@ -180,6 +210,9 @@
   .house-title .sub {
     font-size: 12px;
     color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .house-body {
     padding: 14px;
@@ -199,7 +232,7 @@
     margin-bottom: 4px;
     color: #374151;
   }
-  input[type="text"], input[type="number"], input[type="tel"], select {
+  input[type="text"], input[type="number"], input[type="tel"], select, textarea {
     padding: 7px 9px;
     border: 1px solid #d1d5db;
     border-radius: 5px;
@@ -207,10 +240,26 @@
     font-family: inherit;
     background: #fff;
   }
-  input:focus, select:focus {
+  textarea {
+    min-height: 70px;
+    resize: vertical;
+    line-height: 1.4;
+  }
+  input:focus, select:focus, textarea:focus {
     outline: none;
     border-color: #1e40af;
     box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.15);
+  }
+  .section-divider {
+    grid-column: 1 / -1;
+    border-top: 1px dashed #e5e7eb;
+    margin: 4px 0 0;
+    padding-top: 8px;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
   }
   .radio-group, .check-group {
     display: flex;
@@ -244,10 +293,81 @@
 
   #fileInput { display: none; }
 
+  /* Floating Action Menu (bottom-left) */
+  .fab-wrap {
+    position: fixed;
+    bottom: 22px;
+    left: 22px;
+    z-index: 90;
+  }
+  .fab-main {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: #1f2937;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    border: none;
+    transition: transform 0.2s, background 0.2s;
+    padding: 0;
+  }
+  .fab-main:hover { background: #111827; transform: scale(1.05); }
+  .fab-main svg { transition: transform 0.2s; }
+  .fab-wrap.open .fab-main svg { transform: rotate(90deg); }
+  .fab-menu {
+    position: absolute;
+    bottom: 64px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(8px);
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .fab-wrap.open .fab-menu {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .fab-item {
+    background: #fff;
+    padding: 10px 18px;
+    border-radius: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    font-family: inherit;
+    transition: transform 0.15s;
+  }
+  .fab-item:hover { transform: translateX(3px); }
+  .fab-item.export { color: #059669; }
+  .fab-item.import { color: #1e40af; }
+  .fab-item.clear { color: #dc2626; }
+  .fab-backdrop {
+    position: fixed;
+    inset: 0;
+    background: transparent;
+    z-index: 80;
+    display: none;
+  }
+  .fab-wrap.open ~ .fab-backdrop { display: block; }
+
   .toast {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 22px;
+    right: 22px;
     background: #1f2937;
     color: #fff;
     padding: 12px 20px;
@@ -263,14 +383,26 @@
   .toast.show { opacity: 1; transform: translateY(0); }
   .toast.error { background: #dc2626; }
 
+  /* Mobile */
   @media (max-width: 640px) {
-    body { padding: 10px; }
+    body { padding: 10px 10px 100px; }
     .house-body { grid-template-columns: 1fr; }
     header { padding: 16px; }
     header h1 { font-size: 18px; }
     .toolbar { padding: 12px 14px; }
     #bhawansContainer { padding: 14px; }
-    button { padding: 8px 12px; font-size: 13px; }
+    .bhawan-header { padding: 12px 14px; }
+    .bhawan-body { padding: 14px; }
+    .bhawan-title h2 { font-size: 15px; }
+
+    /* compact card-level buttons on mobile: hide text, show icon only */
+    .card-actions .btn-text { display: none; }
+    .card-actions button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      justify-content: center;
+    }
   }
 </style>
 </head>
@@ -285,30 +417,72 @@
   </header>
 
   <div class="toolbar">
-    <button class="btn-primary" onclick="addBhawan()">+ Add Bhawan</button>
-    <button class="btn-success" onclick="exportJSON()">⬇ Export JSON</button>
-    <button class="btn-secondary" onclick="document.getElementById('fileInput').click()">⬆ Import JSON</button>
-    <input type="file" id="fileInput" accept=".json,application/json" onchange="importJSON(event)">
-    <span class="count" id="countLabel">0 bhawans</span>
+    <button class="btn-primary" onclick="addBhawan()">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 010 2h-5v5a1 1 0 01-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z"/></svg>
+      Add Bhawan
+    </button>
+    <div class="count">
+      <span class="save-indicator" id="saveIndicator"><span class="dot"></span> Saved</span>
+      <span id="countLabel">0 bhawans</span>
+    </div>
   </div>
 
   <div id="bhawansContainer">
     <div class="empty-state" id="emptyState">
       <p>No Bhawans added yet.</p>
-      <button class="btn-primary" onclick="addBhawan()">Add Your First Bhawan</button>
+      <button class="btn-primary" onclick="addBhawan()">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 010 2h-5v5a1 1 0 01-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z"/></svg>
+        Add Your First Bhawan
+      </button>
     </div>
   </div>
 </div>
 
+<!-- Floating menu (bottom-left) -->
+<div class="fab-wrap" id="fabWrap">
+  <button class="fab-main" onclick="toggleFab(event)" aria-label="Menu">
+    <svg width="22" height="22" viewBox="0 0 20 20" fill="currentColor">
+      <circle cx="10" cy="4" r="1.8"/>
+      <circle cx="10" cy="10" r="1.8"/>
+      <circle cx="10" cy="16" r="1.8"/>
+    </svg>
+  </button>
+  <div class="fab-menu">
+    <button class="fab-item export" onclick="exportJSON(); closeFab();">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v8.586l2.293-2.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V4a1 1 0 011-1zM3 16a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+      Export Backup
+    </button>
+    <button class="fab-item import" onclick="document.getElementById('fileInput').click(); closeFab();">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M10 17a1 1 0 01-1-1V7.414L6.707 9.707a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 11-1.414 1.414L11 7.414V16a1 1 0 01-1 1zM3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"/></svg>
+      Import Backup
+    </button>
+    <button class="fab-item clear" onclick="clearAll(); closeFab();">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>
+      Clear All Data
+    </button>
+  </div>
+</div>
+<div class="fab-backdrop" onclick="closeFab()"></div>
+<input type="file" id="fileInput" accept=".json,application/json" onchange="importJSON(event)">
+
 <div class="toast" id="toast"></div>
 
 <script>
+  const STORAGE_KEY = 'householdSurveyData_v2';
   let bhawanIdCounter = 0;
   let houseIdCounter = 0;
+  let saveTimer = null;
+  let isRestoring = false;
 
   document.getElementById('dateStamp').textContent =
     new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 
+  /* ---------- Icons ---------- */
+  const chevronSVG = '<svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 6 5-6H5z"/></svg>';
+  const plusIconSVG = '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 3a1 1 0 011 1v5h5a1 1 0 010 2h-5v5a1 1 0 01-2 0v-5H4a1 1 0 010-2h5V4a1 1 0 011-1z"/></svg>';
+  const binIconSVG = '<svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"/></svg>';
+
+  /* ---------- Toast ---------- */
   function showToast(msg, isError = false) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -316,8 +490,23 @@
     setTimeout(() => t.className = 'toast', 2500);
   }
 
-  const chevronSVG = '<svg class="chevron" viewBox="0 0 20 20" fill="currentColor"><path d="M5 7l5 6 5-6H5z"/></svg>';
+  function flashSaveIndicator() {
+    const ind = document.getElementById('saveIndicator');
+    ind.classList.add('show');
+    clearTimeout(flashSaveIndicator._t);
+    flashSaveIndicator._t = setTimeout(() => ind.classList.remove('show'), 1200);
+  }
 
+  /* ---------- FAB ---------- */
+  function toggleFab(e) {
+    if (e) e.stopPropagation();
+    document.getElementById('fabWrap').classList.toggle('open');
+  }
+  function closeFab() {
+    document.getElementById('fabWrap').classList.remove('open');
+  }
+
+  /* ---------- Helpers ---------- */
   function updateCount() {
     const n = document.querySelectorAll('.bhawan-card').length;
     document.getElementById('countLabel').textContent = n + ' bhawan' + (n === 1 ? '' : 's');
@@ -344,10 +533,9 @@
     const head = houseEl.querySelector('input[name="headOfFamily"]').value.trim();
     const bhawanEl = houseEl.closest('.bhawan-card');
     const idx = Array.from(bhawanEl.querySelectorAll('.house-card')).indexOf(houseEl) + 1;
-    const titleEl = houseEl.querySelector('.house-title h4');
-    const subEl = houseEl.querySelector('.house-title .sub');
-    titleEl.textContent = 'House ' + idx + (houseNum ? '  ·  ' + houseNum : '');
-    subEl.textContent = head ? '— ' + head : '';
+    houseEl.querySelector('.house-title h4').textContent =
+      'House ' + idx + (houseNum ? '  ·  ' + houseNum : '');
+    houseEl.querySelector('.house-title .sub').textContent = head ? '— ' + head : '';
   }
 
   function renumberAll() {
@@ -362,6 +550,11 @@
     headerEl.classList.toggle('collapsed', isCollapsed);
   }
 
+  function escapeAttr(s) {
+    return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  /* ---------- Add / Remove ---------- */
   function addBhawan(data) {
     bhawanIdCounter++;
     const id = bhawanIdCounter;
@@ -376,9 +569,13 @@
           <h2>Bhawan</h2>
           <span class="bhawan-badge">0 houses</span>
         </div>
-        <div class="bhawan-actions" onclick="event.stopPropagation()">
-          <button class="btn-primary btn-sm" onclick="addHouseToBhawan(${id})">+ Add House</button>
-          <button class="btn-danger btn-sm" onclick="removeBhawan(${id})">Delete Bhawan</button>
+        <div class="card-actions" onclick="event.stopPropagation()">
+          <button class="btn-primary btn-sm" onclick="addHouseToBhawan(${id})" title="Add House">
+            ${plusIconSVG}<span class="btn-text">Add</span>
+          </button>
+          <button class="btn-danger btn-sm" onclick="removeBhawan(${id})" title="Delete Bhawan">
+            ${binIconSVG}<span class="btn-text">Delete</span>
+          </button>
         </div>
       </div>
       <div class="bhawan-body">
@@ -389,7 +586,7 @@
           </div>
         </div>
         <div class="houses-list"></div>
-        <div class="empty-houses">No houses added yet. Click "+ Add House" above.</div>
+        <div class="empty-houses">No houses added yet. Tap the + button above.</div>
       </div>
     `;
     document.getElementById('bhawansContainer').appendChild(card);
@@ -404,17 +601,17 @@
     updateBhawanTitle(card);
     updateBhawanBadge(card);
     updateCount();
-    if (!data) {
+    if (!data && !isRestoring) {
       card.scrollIntoView({ behavior: 'smooth', block: 'center' });
       numInput.focus();
+      scheduleSave();
     }
     return card;
   }
 
   function onBhawanHeaderClick(event, headerEl) {
     if (event.target.closest('button') || event.target.closest('input')) return;
-    const body = headerEl.nextElementSibling;
-    toggleCollapse(headerEl, body);
+    toggleCollapse(headerEl, headerEl.nextElementSibling);
   }
 
   function removeBhawan(bhawanId) {
@@ -428,9 +625,10 @@
     card.remove();
     renumberAll();
     updateCount();
+    scheduleSave();
   }
 
-  function addHouseToBhawan(bhawanId, data, skipUpdates) {
+  function addHouseToBhawan(bhawanId, data, skipScroll) {
     const bhawanEl = document.querySelector(`.bhawan-card[data-bhawan-id="${bhawanId}"]`);
     if (!bhawanEl) return;
     houseIdCounter++;
@@ -446,8 +644,10 @@
           <h4>House</h4>
           <span class="sub"></span>
         </div>
-        <div class="bhawan-actions" onclick="event.stopPropagation()">
-          <button class="btn-danger btn-sm" onclick="removeHouse(${hid})">Delete</button>
+        <div class="card-actions" onclick="event.stopPropagation()">
+          <button class="btn-danger btn-sm" onclick="removeHouse(${hid})" title="Delete">
+            ${binIconSVG}<span class="btn-text">Delete</span>
+          </button>
         </div>
       </div>
       <div class="house-body">
@@ -543,18 +743,43 @@
             }).join('')}
           </div>
         </div>
+
+        <div class="section-divider">Appliances & Connectivity</div>
+        <div class="field full">
+          <label>Devices in Household (select all that apply)</label>
+          <div class="check-group">
+            ${['Television','Laptop','Internet'].map(v => {
+              const checked = (d.appliances || []).includes(v) ? 'checked' : '';
+              return `<label><input type="checkbox" name="appliance_${hid}" value="${v}" ${checked}> ${v}</label>`;
+            }).join('')}
+          </div>
+        </div>
+        <div class="field full">
+          <label>Phones in Household (select all that apply)</label>
+          <div class="check-group">
+            ${['Telephone','Mobile','Smartphone'].map(v => {
+              const checked = (d.phones || []).includes(v) ? 'checked' : '';
+              return `<label><input type="checkbox" name="phone_${hid}" value="${v}" ${checked}> ${v}</label>`;
+            }).join('')}
+          </div>
+        </div>
+
+        <div class="section-divider">Additional Notes</div>
+        <div class="field full">
+          <label>Notes / Remarks</label>
+          <textarea name="notes" placeholder="Any additional information, observations, or remarks about this household...">${escapeAttr(d.notes || '').replace(/&quot;/g, '"')}</textarea>
+        </div>
       </div>
     `;
 
-    // Collapse house body by default if loading from data
-    if (data && skipUpdates) {
+    // When restoring data, keep houses collapsed by default
+    if (data && skipScroll) {
       card.querySelector('.house-body').classList.add('hidden');
       card.querySelector('.house-header').classList.add('collapsed');
     }
 
     bhawanEl.querySelector('.houses-list').appendChild(card);
 
-    // Wire up live title updates
     const houseNumInput = card.querySelector('input[name="houseNumber"]');
     const headInput = card.querySelector('input[name="headOfFamily"]');
     houseNumInput.addEventListener('input', () => updateHouseTitle(card));
@@ -578,21 +803,20 @@
     updateHouseTitle(card);
     updateBhawanBadge(bhawanEl);
 
-    if (!data) {
-      // Make sure bhawan body is open
+    if (!data && !isRestoring) {
       const body = bhawanEl.querySelector('.bhawan-body');
       const header = bhawanEl.querySelector('.bhawan-header');
       body.classList.remove('hidden');
       header.classList.remove('collapsed');
-      card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      if (!skipScroll) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      scheduleSave();
     }
     return card;
   }
 
   function onHouseHeaderClick(event, headerEl) {
     if (event.target.closest('button')) return;
-    const body = headerEl.nextElementSibling;
-    toggleCollapse(headerEl, body);
+    toggleCollapse(headerEl, headerEl.nextElementSibling);
   }
 
   function removeHouse(houseId) {
@@ -603,12 +827,10 @@
     card.remove();
     renumberAll();
     updateBhawanBadge(bhawanEl);
+    scheduleSave();
   }
 
-  function escapeAttr(s) {
-    return String(s).replace(/"/g, '&quot;').replace(/</g, '&lt;');
-  }
-
+  /* ---------- Data collection ---------- */
   function collectData() {
     const bhawans = [];
     document.querySelectorAll('.bhawan-card').forEach(bcard => {
@@ -644,7 +866,10 @@
           floorTypeOther: get('input[name="floorTypeOther"]'),
           gas: getRadio('gas'),
           water: getRadio('water'),
-          vehicles: getChecks('vehicle')
+          vehicles: getChecks('vehicle'),
+          appliances: getChecks('appliance'),
+          phones: getChecks('phone'),
+          notes: get('textarea[name="notes"]')
         });
       });
       bhawans.push({ bhawanNumber, houses });
@@ -652,6 +877,48 @@
     return bhawans;
   }
 
+  /* ---------- LocalStorage auto-save ---------- */
+  function scheduleSave() {
+    if (isRestoring) return;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try {
+        const data = collectData();
+        const payload = {
+          savedAt: new Date().toISOString(),
+          bhawans: data
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        flashSaveIndicator();
+      } catch (err) {
+        console.error('Save failed:', err);
+      }
+    }, 400);
+  }
+
+  function restoreFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      const list = parsed.bhawans || [];
+      if (list.length === 0) return false;
+      isRestoring = true;
+      list.forEach(b => addBhawan(b));
+      isRestoring = false;
+      return true;
+    } catch (err) {
+      console.error('Restore failed:', err);
+      isRestoring = false;
+      return false;
+    }
+  }
+
+  // Listen for any input/change to autosave
+  document.getElementById('bhawansContainer').addEventListener('input', scheduleSave);
+  document.getElementById('bhawansContainer').addEventListener('change', scheduleSave);
+
+  /* ---------- Export / Import / Clear ---------- */
   function exportJSON() {
     const data = collectData();
     if (data.length === 0) {
@@ -675,7 +942,7 @@
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast(`Exported ${data.length} bhawan(s), ${totalHouses} house(s)`);
+    showToast(`Backup saved: ${data.length} bhawan(s), ${totalHouses} house(s)`);
   }
 
   function importJSON(event) {
@@ -687,22 +954,13 @@
         const parsed = JSON.parse(e.target.result);
         let bhawanList;
 
-        // New format
         if (parsed.bhawans && Array.isArray(parsed.bhawans)) {
           bhawanList = parsed.bhawans;
-        }
-        // Old flat-houses format — wrap into a single bhawan
-        else if (parsed.houses && Array.isArray(parsed.houses)) {
+        } else if (parsed.houses && Array.isArray(parsed.houses)) {
           bhawanList = [{ bhawanNumber: '', houses: parsed.houses }];
-        }
-        // Bare array
-        else if (Array.isArray(parsed)) {
-          // Could be array of bhawans or array of houses
-          if (parsed.length > 0 && parsed[0].houses) {
-            bhawanList = parsed;
-          } else {
-            bhawanList = [{ bhawanNumber: '', houses: parsed }];
-          }
+        } else if (Array.isArray(parsed)) {
+          if (parsed.length > 0 && parsed[0].houses) bhawanList = parsed;
+          else bhawanList = [{ bhawanNumber: '', houses: parsed }];
         } else {
           throw new Error('Invalid format');
         }
@@ -717,7 +975,10 @@
         bhawanIdCounter = 0;
         houseIdCounter = 0;
 
+        isRestoring = true;
         bhawanList.forEach(b => addBhawan(b));
+        isRestoring = false;
+        scheduleSave();
 
         const totalHouses = bhawanList.reduce((s, b) => s + (b.houses ? b.houses.length : 0), 0);
         showToast(`Imported ${bhawanList.length} bhawan(s), ${totalHouses} house(s)`);
@@ -728,6 +989,26 @@
     };
     reader.readAsText(file);
   }
+
+  function clearAll() {
+    const n = document.querySelectorAll('.bhawan-card').length;
+    if (n === 0) {
+      showToast('Nothing to clear');
+      return;
+    }
+    if (!confirm(`Clear ALL data? This will permanently delete ${n} bhawan(s) and all houses inside. Make sure you have exported a backup first.`)) return;
+    if (!confirm('Are you absolutely sure? This cannot be undone.')) return;
+    document.querySelectorAll('.bhawan-card').forEach(c => c.remove());
+    bhawanIdCounter = 0;
+    houseIdCounter = 0;
+    localStorage.removeItem(STORAGE_KEY);
+    updateCount();
+    showToast('All data cleared');
+  }
+
+  /* ---------- Init ---------- */
+  restoreFromStorage();
+  updateCount();
 </script>
 </body>
 </html>
